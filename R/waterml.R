@@ -1,3 +1,78 @@
+#' @import XML
+#' @import httr
+WaterOneFlowNamespace <- function(version) {
+  # WaterOneFlowNamespace
+  #
+  # A helper function that finds out the WaterOneFlow namespace information
+  # based on the version number 1.0 or 1.1.
+  #
+  # @param version The version of the WaterOneFlow XML namespace. Must be either "1.0" or "1.1"
+  # @return A list with the namespaces and corresponding prefixes. This namespace
+  # information is important for correct parsing of the WaterML XML document.
+  # @keywords WaterML
+  # @export
+  # @examples
+  # ns <- WaterOneFlowNamespace("1.0")
+  # ns <- WaterOneFlowNamespace("1.1")
+  if (version == "1.0") {
+    ns <- c(soap="http://schemas.xmlsoap.org/soap/envelope/",
+            xsd="http://www.w3.org/2001/XMLSchema",
+            xsi="http://www.w3.org/2001/XMLSchema-instance",
+            sr="http://www.cuahsi.org/waterML/1.0/",
+            gsr="http://www.cuahsi.org/his/1.0/ws/")
+  } else {
+    ns <- c(soap="http://schemas.xmlsoap.org/soap/envelope/",
+            xsd="http://www.w3.org/2001/XMLSchema",
+            xsi="http://www.w3.org/2001/XMLSchema-instance",
+            sr="http://www.cuahsi.org/waterML/1.1/",
+            gsr="http://www.cuahsi.org/his/1.1/ws/")
+  }
+  return(ns)
+}
+
+WaterMLVersion <- function(doc) {
+  # WaterMLVersion
+  #
+  # A helper function that finds out the WaterML version from
+  # the WaterML document. By default it checks for "http://www.opengis.net/waterml/2.0"
+  # Otherwise it tries to detect "http://www.cuahsi.org/waterML/1.1/" (for WaterML 1.1) or
+  # "http://www.cuahsi.org/WaterML/1.0/" (for WaterML 1.0)
+  #
+  # @param doc The XML document object
+  # @return A character with the WaterML version: either 1.0, 1.1, or 2.0
+  # @keywords WaterML
+  # @export
+  # @examples
+  # library(httr)
+  # library(XML)
+  # url <- "http://www.waterml2.org/KiWIS-WML2-Example.wml"
+  # response <- GET(url)
+  # doc <- xmlParse(response)
+  # version <- WaterMLVersion(doc)
+
+  #check namespaces
+  ns_list <- xmlNamespaceDefinitions(doc, simplify=TRUE)
+  namespaces <- as.character(unlist(ns_list))
+
+  wml_2_0_namespace <- "http://www.opengis.net/waterml/2.0"
+  wml_1_1_namespace <- "http://www.cuahsi.org/waterML/1.1/"
+  wml_1_0_namespace <- "http://www.cuahsi.org/waterML/1.0/"
+
+  if (wml_2_0_namespace %in% namespaces) {
+    return ("2.0")
+  }
+
+  if (wml_1_1_namespace %in% namespaces) {
+    return ("1.1")
+  }
+
+  if (wml_1_0_namespace %in% namespaces) {
+    return ("1.0")
+  }
+
+  #if not found assume 1.1
+  return ("1.1")
+}
 
 WaterOneFlowVersion <- function(WSDL) {
   # WaterOneFlowVersion

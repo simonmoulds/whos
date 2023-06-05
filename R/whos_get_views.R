@@ -1,4 +1,7 @@
-
+#' Get views
+#'
+#' @return Character
+#' @export
 whos_get_views <- function() {
   views <- c(
     "argentina-ina", "brazil-ana", "brazil-inmet",
