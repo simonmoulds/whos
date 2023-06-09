@@ -17,5 +17,5 @@ whos_get_values(server, site, variable)
 tibble
 }
 \description{
-Get values
+Retrieve data for a given site.
 }

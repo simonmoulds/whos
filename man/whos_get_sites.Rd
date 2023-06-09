@@ -8,6 +8,8 @@ whos_get_sites(server, ...)
 }
 \arguments{
 \item{server}{The URL of the WHOS server}
+
+\item{...}{Additional arguments. None implemented.}
 }
 \value{
 A tibble.

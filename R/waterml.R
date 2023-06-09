@@ -1,3 +1,4 @@
+#' @import stats
 #' @import XML
 #' @import httr
 WaterOneFlowNamespace <- function(version) {
@@ -107,222 +108,222 @@ WaterOneFlowVersion <- function(WSDL) {
   return(list(Version="1.0", Namespace=validNamespace_1_0))
 }
 
-GetServices <- function() {
-  # GetServices
-  #
-  # This function gets the table of web services from the HIS Central catalog
-  #
-  # @import XML
-  # @import httr
-  # @keywords waterml
-  # @export
-  # @examples
-  # GetServices()
+## GetServices <- function() {
+##   # GetServices
+##   #
+##   # This function gets the table of web services from the HIS Central catalog
+##   #
+##   # @import XML
+##   # @import httr
+##   # @keywords waterml
+##   # @export
+##   # @examples
+##   # GetServices()
 
-  url <- "http://hiscentral.cuahsi.org/webservices/hiscentral.asmx/GetWaterOneFlowServiceInfo"
+##   url <- "http://hiscentral.cuahsi.org/webservices/hiscentral.asmx/GetWaterOneFlowServiceInfo"
 
-  download.time <- system.time(
-    tryCatch({
-      downloaded <- FALSE
-      response <- GET(url)
-      downloaded <- TRUE
-    },error=function(e){
-      warning(conditionMessage(e))
-    })
-  )
+##   download.time <- system.time(
+##     tryCatch({
+##       downloaded <- FALSE
+##       response <- GET(url)
+##       downloaded <- TRUE
+##     },error=function(e){
+##       warning(conditionMessage(e))
+##     })
+##   )
 
-  if (!downloaded) {
-    return(NULL)
-  }
-  status.code <- http_status(response)$category
+##   if (!downloaded) {
+##     return(NULL)
+##   }
+##   status.code <- http_status(response)$category
 
-  ######################################################
-  # Parsing the WaterML XML Data                       #
-  ######################################################
-  doc <- tryCatch({
-    xmlParse(response)
-  }, warning = function(w) {
-    warning("Error reading HIS Central Data: Bad XML format.")
-    return(NULL)
-  }, error = function(e) {
-    warning("Error reading HIS Central Data: Bad XML format.")
-    return(NULL)
-  }
-  )
-  if (is.null(doc)) {
-    return(NULL)
-  }
+##   ######################################################
+##   # Parsing the WaterML XML Data                       #
+##   ######################################################
+##   doc <- tryCatch({
+##     xmlParse(response)
+##   }, warning = function(w) {
+##     warning("Error reading HIS Central Data: Bad XML format.")
+##     return(NULL)
+##   }, error = function(e) {
+##     warning("Error reading HIS Central Data: Bad XML format.")
+##     return(NULL)
+##   }
+##   )
+##   if (is.null(doc)) {
+##     return(NULL)
+##   }
 
-  doc <- xmlRoot(doc, getDTD=FALSE, useInternalNodes = TRUE)
+##   doc <- xmlRoot(doc, getDTD=FALSE, useInternalNodes = TRUE)
 
-  N <- xmlSize(doc)
+##   N <- xmlSize(doc)
 
-  colnames <- c("url","title","descriptionURL","organization","citation","abstract",
-                "valuecount","variablecount","sitecount","id","networkName",
-                "minLon","minLat","maxLon","maxLat")
+##   colnames <- c("url","title","descriptionURL","organization","citation","abstract",
+##                 "valuecount","variablecount","sitecount","id","networkName",
+##                 "minLon","minLat","maxLon","maxLat")
 
-  m <- matrix(ncol=15, nrow=N, dimnames=list(NULL, colnames))
-  df <- as.data.frame(m)
+##   m <- matrix(ncol=15, nrow=N, dimnames=list(NULL, colnames))
+##   df <- as.data.frame(m)
 
-  for(i in 1:N){
-    element <- xmlToList(doc[[i]])
-    #we replace NULL values with NA
-    e <- lapply(element, function(x) {ifelse(is.null(x), NA, x)})
-    df$url[i] <- e$servURL
-    df$title[i] <- e$Title
-    df$descriptionURL[i] <- e$ServiceDescriptionURL
-    df$organization[i] <- e$organization
-    df$citation[i] <- e$citation
-    df$abstract[i] <- e$aabstract
-    df$valuecount[i] <- e$valuecount
-    df$sitecount[i] <- e$sitecount
-    df$id[i] <- e$ServiceID
-    df$networkName[i] <- e$NetworkName
-    df$minLon[i] <- e$minx
-    df$minLat[i] <- e$miny
-    df$maxLat[i] <- e$maxx
-    df$maxLon[i] <- e$maxy
-  }
-  return(df)
-}
+##   for(i in 1:N){
+##     element <- xmlToList(doc[[i]])
+##     #we replace NULL values with NA
+##     e <- lapply(element, function(x) {ifelse(is.null(x), NA, x)})
+##     df$url[i] <- e$servURL
+##     df$title[i] <- e$Title
+##     df$descriptionURL[i] <- e$ServiceDescriptionURL
+##     df$organization[i] <- e$organization
+##     df$citation[i] <- e$citation
+##     df$abstract[i] <- e$aabstract
+##     df$valuecount[i] <- e$valuecount
+##     df$sitecount[i] <- e$sitecount
+##     df$id[i] <- e$ServiceID
+##     df$networkName[i] <- e$NetworkName
+##     df$minLon[i] <- e$minx
+##     df$minLat[i] <- e$miny
+##     df$maxLat[i] <- e$maxx
+##     df$maxLon[i] <- e$maxy
+##   }
+##   return(df)
+## }
 
-HISCentral_GetSites <- function(west=-180, south=-90, east=180, north=90,
-                                serviceID=NULL, keyword=NULL, IncludeServerDetails=TRUE) {
-  # HISCentral_GetSites
-  #
-  # This function gets the table of sites from the HIS Central catalog
-  #
-  # @import XML
-  # @import httr
-  # @param west The west longitude of the geographic
-  #  bounding box in decimal degrees. Allowed values are between -180.0 and +180.0
-  # @param south The south latitude of the geographic
-  #  bounding box in decimal degrees. Allowed values are between -90.0 and +90.0
-  # @param east The east longitude of the geographic
-  #  bounding box in decimal degrees. Allowed values are between -180.0 and +180.0
-  # @param north The north latitude of the geographic
-  #  bounding box in decimal degrees. Allowed values are between -90.0 and +90.0
-  # @param serviceID (optional): The ID of the service on HIS Central. To get the service ID,
-  #  use the id column in the output of the GetServices() function.
-  # @param keyword (optional): The concept keyword (common name of variable) for
-  #  searching the sites on HIS Central. Examples include Temperature, Precipitation, Snow Depth,... If the Keyword is not
-  #  specified then sites with any variable will be returned.
-  # @param IncludeServerDetails (optional): If set to TRUE, then the output will
-  # include the servCode and servURL for each site. If set to FALSE, then we assume
-  # that all sites are from the same server and the servURL and servCode are not included.
-  # @return a data.frame of sites. The data.frame has the following columns:
-  # \itemize{
-  # \item SiteName: The name of the site
-  # \item SiteCode: A short unique code of the site
-  # \item FullSiteCode: The complete unique code of the site in the format NETWORK:CODE.
-  #               Use this value in the GetSiteInfo and GetValues functions
-  # \item Latitude:  The WGS84 latitude in decimal degrees
-  # \item Longitude: The WGS84 longitude in decimal degrees
-  # \item ServCode: The code of the service in HIS Central. Same as the networkName in
-  #                  the output from GetServices() function.
-  #                  This column is only shown if IncludeServerDetails is TRUE.
-  # \item ServURL:   The URL of the web service for this site as registered in HIS Central.
-  #                  This column is only shown if IncludeServerDetails is TRUE.
-  # }
-  # @keywords waterml
-  # @export
-  # @examples
-  # #Getting all sites from the (14.1E, 49.8N, 14.6E, 50.2N) bounding box from the GLDAS web service
-  # sites <- HISCentral_GetSites(west=14.1, south=49.8, east=14.6, north=50.2, serviceID=262)
+## HISCentral_GetSites <- function(west=-180, south=-90, east=180, north=90,
+##                                 serviceID=NULL, keyword=NULL, IncludeServerDetails=TRUE) {
+##   # HISCentral_GetSites
+##   #
+##   # This function gets the table of sites from the HIS Central catalog
+##   #
+##   # @import XML
+##   # @import httr
+##   # @param west The west longitude of the geographic
+##   #  bounding box in decimal degrees. Allowed values are between -180.0 and +180.0
+##   # @param south The south latitude of the geographic
+##   #  bounding box in decimal degrees. Allowed values are between -90.0 and +90.0
+##   # @param east The east longitude of the geographic
+##   #  bounding box in decimal degrees. Allowed values are between -180.0 and +180.0
+##   # @param north The north latitude of the geographic
+##   #  bounding box in decimal degrees. Allowed values are between -90.0 and +90.0
+##   # @param serviceID (optional): The ID of the service on HIS Central. To get the service ID,
+##   #  use the id column in the output of the GetServices() function.
+##   # @param keyword (optional): The concept keyword (common name of variable) for
+##   #  searching the sites on HIS Central. Examples include Temperature, Precipitation, Snow Depth,... If the Keyword is not
+##   #  specified then sites with any variable will be returned.
+##   # @param IncludeServerDetails (optional): If set to TRUE, then the output will
+##   # include the servCode and servURL for each site. If set to FALSE, then we assume
+##   # that all sites are from the same server and the servURL and servCode are not included.
+##   # @return a data.frame of sites. The data.frame has the following columns:
+##   # \itemize{
+##   # \item SiteName: The name of the site
+##   # \item SiteCode: A short unique code of the site
+##   # \item FullSiteCode: The complete unique code of the site in the format NETWORK:CODE.
+##   #               Use this value in the GetSiteInfo and GetValues functions
+##   # \item Latitude:  The WGS84 latitude in decimal degrees
+##   # \item Longitude: The WGS84 longitude in decimal degrees
+##   # \item ServCode: The code of the service in HIS Central. Same as the networkName in
+##   #                  the output from GetServices() function.
+##   #                  This column is only shown if IncludeServerDetails is TRUE.
+##   # \item ServURL:   The URL of the web service for this site as registered in HIS Central.
+##   #                  This column is only shown if IncludeServerDetails is TRUE.
+##   # }
+##   # @keywords waterml
+##   # @export
+##   # @examples
+##   # #Getting all sites from the (14.1E, 49.8N, 14.6E, 50.2N) bounding box from the GLDAS web service
+##   # sites <- HISCentral_GetSites(west=14.1, south=49.8, east=14.6, north=50.2, serviceID=262)
 
-  catalog = "http://hiscentral.cuahsi.org/webservices/hiscentral.asmx/GetSitesInBox2"
+##   catalog = "http://hiscentral.cuahsi.org/webservices/hiscentral.asmx/GetSitesInBox2"
 
-  #create the URL
-  servID = serviceID
-  if (is.null(serviceID)) {
-    servID=""
-  }
-  if (is.null(keyword)) {
-    keyword=""
-  }
-  queryParameters <- list(xmin=west, ymin=south, xmax=east, ymax=north,
-                          networkIDs=servID, conceptKeyword=keyword)
-  url <- paste(catalog, "?", "&xmin=", west, "&ymin=", south, "&xmax=", east,
-               "&ymax=", north, "networkIDs=", servID, "&conceptKeyword=", keyword,
-               sep="")
+##   #create the URL
+##   servID = serviceID
+##   if (is.null(serviceID)) {
+##     servID=""
+##   }
+##   if (is.null(keyword)) {
+##     keyword=""
+##   }
+##   queryParameters <- list(xmin=west, ymin=south, xmax=east, ymax=north,
+##                           networkIDs=servID, conceptKeyword=keyword)
+##   url <- paste(catalog, "?", "&xmin=", west, "&ymin=", south, "&xmax=", east,
+##                "&ymax=", north, "networkIDs=", servID, "&conceptKeyword=", keyword,
+##                sep="")
 
-  print(paste("searching sites from:", url, "..."))
+##   print(paste("searching sites from:", url, "..."))
 
-  download.time <- system.time(
-    tryCatch({
-      downloaded <- FALSE
-      response <- GET(catalog, query=queryParameters)
-      downloaded <- TRUE
-    },error=function(e){
-      print(conditionMessage(e))
-    })
-  )
+##   download.time <- system.time(
+##     tryCatch({
+##       downloaded <- FALSE
+##       response <- GET(catalog, query=queryParameters)
+##       downloaded <- TRUE
+##     },error=function(e){
+##       print(conditionMessage(e))
+##     })
+##   )
 
-  if (!downloaded) {
-    return(NULL)
-  }
+##   if (!downloaded) {
+##     return(NULL)
+##   }
 
-  status.code <- http_status(response)$category
-  print(paste("download time:", round(download.time["elapsed"], 1), "seconds, status:", status.code))
+##   status.code <- http_status(response)$category
+##   print(paste("download time:", round(download.time["elapsed"], 1), "seconds, status:", status.code))
 
-  ######################################################
-  # Parsing the WaterML XML Data                       #
-  ######################################################
+##   ######################################################
+##   # Parsing the WaterML XML Data                       #
+##   ######################################################
 
-  print("reading sites XML data...")
-  doc <- tryCatch({
-    xmlParse(response)
-  }, warning = function(w) {
-    print("Error reading HIS Central Data: Bad XML format.")
-    return(NULL)
-  }, error = function(e) {
-    print("Error reading HIS Central Data: Bad XML format.")
-    return(NULL)
-  }
-  )
-  if (is.null(doc)) {
-    return(NULL)
-  }
+##   print("reading sites XML data...")
+##   doc <- tryCatch({
+##     xmlParse(response)
+##   }, warning = function(w) {
+##     print("Error reading HIS Central Data: Bad XML format.")
+##     return(NULL)
+##   }, error = function(e) {
+##     print("Error reading HIS Central Data: Bad XML format.")
+##     return(NULL)
+##   }
+##   )
+##   if (is.null(doc)) {
+##     return(NULL)
+##   }
 
-  # specify the namespace information for HIS Central
-  ns <- c(xsd="http://www.w3.org/2001/XMLSchema",
-          xsi="http://www.w3.org/2001/XMLSchema-instance",
-          sr="http://hiscentral.cuahsi.org/20100205/")
+##   # specify the namespace information for HIS Central
+##   ns <- c(xsd="http://www.w3.org/2001/XMLSchema",
+##           xsi="http://www.w3.org/2001/XMLSchema-instance",
+##           sr="http://hiscentral.cuahsi.org/20100205/")
 
-  # extract the data columns with XPath
-  SiteName = xpathSApply(doc, "//sr:SiteName", xmlValue, namespaces=ns)
-  N <- length(SiteName)
+##   # extract the data columns with XPath
+##   SiteName = xpathSApply(doc, "//sr:SiteName", xmlValue, namespaces=ns)
+##   N <- length(SiteName)
 
-  FullSiteCode = xpathSApply(doc, "//sr:SiteCode", xmlValue, namespaces=ns)
-  SiteCode = sub(".*:", "", FullSiteCode)
+##   FullSiteCode = xpathSApply(doc, "//sr:SiteCode", xmlValue, namespaces=ns)
+##   SiteCode = sub(".*:", "", FullSiteCode)
 
-  Latitude <- xpathSApply(doc, "//sr:Latitude", xmlValue, namespaces=ns)
-  Longitude = xpathSApply(doc, "//sr:Longitude", xmlValue, namespaces=ns)
+##   Latitude <- xpathSApply(doc, "//sr:Latitude", xmlValue, namespaces=ns)
+##   Longitude = xpathSApply(doc, "//sr:Longitude", xmlValue, namespaces=ns)
 
-  if (IncludeServerDetails == TRUE) {
-    ServCode <- xpathSApply(doc, "//sr:servCode", xmlValue, namespaces=ns)
-    ServURL <- xpathSApply(doc, "//sr:servURL", xmlValue, namespaces=ns)
-    df <- data.frame(
-      SiteName = SiteName,
-      SiteCode = SiteCode,
-      FullSiteCode = FullSiteCode,
-      Latitude = as.numeric(Latitude),
-      Longitude = as.numeric(Longitude),
-      ServCode = ServCode,
-      ServURL = ServURL,
-      stringsAsFactors = FALSE)
-  } else {
-    df <- data.frame(
-      SiteName = SiteName,
-      SiteCode = SiteCode,
-      FullSiteCode = FullSiteCode,
-      Latitude = as.numeric(Latitude),
-      Longitude = as.numeric(Longitude),
-      stringsAsFactors = FALSE)
-  }
+##   if (IncludeServerDetails == TRUE) {
+##     ServCode <- xpathSApply(doc, "//sr:servCode", xmlValue, namespaces=ns)
+##     ServURL <- xpathSApply(doc, "//sr:servURL", xmlValue, namespaces=ns)
+##     df <- data.frame(
+##       SiteName = SiteName,
+##       SiteCode = SiteCode,
+##       FullSiteCode = FullSiteCode,
+##       Latitude = as.numeric(Latitude),
+##       Longitude = as.numeric(Longitude),
+##       ServCode = ServCode,
+##       ServURL = ServURL,
+##       stringsAsFactors = FALSE)
+##   } else {
+##     df <- data.frame(
+##       SiteName = SiteName,
+##       SiteCode = SiteCode,
+##       FullSiteCode = FullSiteCode,
+##       Latitude = as.numeric(Latitude),
+##       Longitude = as.numeric(Longitude),
+##       stringsAsFactors = FALSE)
+##   }
 
-  return(df)
-}
+##   return(df)
+## }
 
 MakeSOAPEnvelope <- function(CUAHSINamespace, MethodName, parameters=NULL) {
   # MakeSOAPEnvelope
@@ -440,30 +441,30 @@ GetSites <- function(server, west=NULL, south=NULL, east=NULL, north=NULL) {
   versionInfo <- WaterOneFlowVersion(server)
   version <- versionInfo$Version
 
-  #special case: WaterML 1.0 and bounding box: Delegate call to HIS Central
-  if (!is.null(west) & !is.null(south) & !is.null(north) & !is.null(east) & version=="1.0") {
-    services <- GetServices()
-    serv <- services[services$url==server,]
-    servID <- serv$id
-    sitesDF <- HISCentral_GetSites(west, south, east, north,
-                                   serviceID = servID,keyword=NULL,
-                                   IncludeServerDetails = FALSE)
-    sitesDF$SiteID <- sitesDF$SiteCode
-    sitesDF$Elevation <- NA
-    sitesDF$State <- NA
-    sitesDF$County <- NA
-    sitesDF$Comments <- NA
-    return (data.frame(SiteID=sitesDF$SiteCode,
-                       SiteName=sitesDF$SiteName,
-                       SiteCode=sitesDF$SiteCode,
-                       FullSiteCode=sitesDF$FullSiteCode,
-                       Latitude=sitesDF$Latitude,
-                       Longitude=sitesDF$Longitude,
-                       Elevation=NA,
-                       State=NA,
-                       County=NA,
-                       Comments=NA))
-  }
+  ## #special case: WaterML 1.0 and bounding box: Delegate call to HIS Central
+  ## if (!is.null(west) & !is.null(south) & !is.null(north) & !is.null(east) & version=="1.0") {
+  ##   services <- GetServices()
+  ##   serv <- services[services$url==server,]
+  ##   servID <- serv$id
+  ##   sitesDF <- HISCentral_GetSites(west, south, east, north,
+  ##                                  serviceID = servID,keyword=NULL,
+  ##                                  IncludeServerDetails = FALSE)
+  ##   sitesDF$SiteID <- sitesDF$SiteCode
+  ##   sitesDF$Elevation <- NA
+  ##   sitesDF$State <- NA
+  ##   sitesDF$County <- NA
+  ##   sitesDF$Comments <- NA
+  ##   return (data.frame(SiteID=sitesDF$SiteCode,
+  ##                      SiteName=sitesDF$SiteName,
+  ##                      SiteCode=sitesDF$SiteCode,
+  ##                      FullSiteCode=sitesDF$FullSiteCode,
+  ##                      Latitude=sitesDF$Latitude,
+  ##                      Longitude=sitesDF$Longitude,
+  ##                      Elevation=NA,
+  ##                      State=NA,
+  ##                      County=NA,
+  ##                      Comments=NA))
+  ## }
 
   # if server ends with ?WSDL or ?wsdl, we assume that service is SOAP
   # otherwise, assume that service is REST

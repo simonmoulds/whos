@@ -10,10 +10,12 @@ whos_get_site_info(server, site, ...)
 \item{server}{Character. WHOS server}
 
 \item{site}{Character. Site code}
+
+\item{...}{Additional arguments. None implemented.}
 }
 \value{
 tibble
 }
 \description{
-Retrieves metadata for a given WHOS site
+Retrieve metadata for a given WHOS site.
 }

@@ -1,6 +1,6 @@
 #' Get server
 #'
-#' This function returns the URL for a given WHOS view
+#' Retrieve the URL for a given WHOS view.
 #'
 #' @param view WHOS view.
 #'

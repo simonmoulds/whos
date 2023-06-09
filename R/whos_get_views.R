@@ -1,5 +1,7 @@
 #' Get views
 #'
+#' Get available views currently supported by WHOS.
+#'
 #' @return Character
 #' @export
 whos_get_views <- function() {

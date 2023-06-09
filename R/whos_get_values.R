@@ -1,5 +1,7 @@
 #' Get values
 #'
+#' Retrieve data for a given site.
+#'
 #' @param server Character. WHOS server
 #' @param site Character. Site code
 #' @param variable Character. Variable code

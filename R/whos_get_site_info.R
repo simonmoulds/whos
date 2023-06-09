@@ -1,9 +1,10 @@
 #' Get site information
 #'
-#' Retrieves metadata for a given WHOS site
+#' Retrieve metadata for a given WHOS site.
 #'
 #' @param server Character. WHOS server
 #' @param site Character. Site code
+#' @param ... Additional arguments. None implemented.
 #'
 #' @return tibble
 #' @export

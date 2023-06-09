@@ -13,5 +13,5 @@ whos_get_server(view)
 Character
 }
 \description{
-This function returns the URL for a given WHOS view
+Retrieve the URL for a given WHOS view.
 }

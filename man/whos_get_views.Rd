@@ -10,5 +10,5 @@ whos_get_views()
 Character
 }
 \description{
-Get views
+Get available views currently supported by WHOS.
 }
