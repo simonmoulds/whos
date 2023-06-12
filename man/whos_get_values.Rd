@@ -4,14 +4,12 @@
 \alias{whos_get_values}
 \title{Get values}
 \usage{
-whos_get_values(server, site, variable)
+whos_get_values(server, site_info)
 }
 \arguments{
 \item{server}{Character. WHOS server}
 
-\item{site}{Character. Site code}
-
-\item{variable}{Character. Variable code}
+\item{site_info}{Tibble.}
 }
 \value{
 tibble

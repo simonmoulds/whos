@@ -1,6 +1,3 @@
-#' @import stats
-#' @import XML
-#' @import httr
 WaterOneFlowNamespace <- function(version) {
   # WaterOneFlowNamespace
   #
