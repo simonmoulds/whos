@@ -10,5 +10,9 @@
 #' @export
 whos_get_sites <- function(server, ...) {
   sites <- GetSites(server, ...)
+  sites <- new_tibble(
+    sites, server = server,
+    class = "whos_sites"
+  )
   sites
 }

@@ -33,9 +33,11 @@ daily_P_var_code <- site_info$VariableCode[8]
 
 streamflow <- whos_get_values(
   server,
-  site = site_code,
-  variable = daily_Q_var_code
+  site_code = site_code,
+  variable_code = daily_Q_var_code,
+  site_info = site_info
 )
+metadata(streamflow)
 }
 }
 \seealso{

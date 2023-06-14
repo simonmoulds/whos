@@ -4,10 +4,12 @@
 \alias{metadata}
 \title{Get metadata for object returned by \code{whos_get_values}}
 \usage{
-metadata(x)
+metadata(x, ...)
 }
 \arguments{
 \item{x}{Tibble.}
+
+\item{...}{Additional arguments. None implemented.}
 }
 \value{
 list

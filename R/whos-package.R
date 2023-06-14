@@ -1,10 +1,14 @@
 #' whos: Retrieve data from the WMO Hydrological Observing System
 #'
 #' @aliases NULL whos-package
-#' @import stats
-#' @import XML
+#' @import checkmate
 #' @import httr
-#' @importFrom tibble tibble new_tibble
+#' @import mapview
+#' @import methods
+#' @import sf
+#' @import stats
+#' @importFrom tibble tibble as_tibble new_tibble
+#' @import XML
 #'
 #' @examples
 #' \dontrun{
@@ -32,8 +36,10 @@
 #'
 #' streamflow <- whos_get_values(
 #'   server,
-#'   site = site_code,
-#'   variable = daily_Q_var_code
+#'   site_code = site_code,
+#'   variable_code = daily_Q_var_code,
+#'   site_info = site_info
 #' )
+#' metadata(streamflow)
 #' }
 "_PACKAGE"

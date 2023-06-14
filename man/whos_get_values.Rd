@@ -4,15 +4,30 @@
 \alias{whos_get_values}
 \title{Get values}
 \usage{
-whos_get_values(server, site_info)
+whos_get_values(server, site_code, variable_code, site_info = NULL, ...)
 }
 \arguments{
-\item{server}{Character. WHOS server}
+\item{server}{Character. The WHOS server.}
 
-\item{site_info}{Tibble.}
+\item{site_code}{Character. The site code for which data should be
+retrieved. This should be taken from the \code{SiteCode} column in the
+tibble returned from \code{\link[=whos_get_sites]{whos_get_sites()}}.}
+
+\item{variable_code}{Character. The variable code(s) for which data
+should be retrieved. These should be taken from the \code{VariableCode}
+column in the tibble returned from \code{\link[=whos_get_site_info]{whos_get_site_info()}}.}
+
+\item{site_info}{Tibble. Site metadata returned from
+\code{\link[=whos_get_site_info]{whos_get_site_info()}}. This is optional to avoid the need to
+download site info if it is not required. If provided, it will
+trigger a number of checks on the compatability of the other
+arguments, and the corresponding metadata will be added as an
+attribute to the returned tibble(s).}
+
+\item{...}{Additional arguments. None implemented.}
 }
 \value{
-tibble
+Tibble or list.
 }
 \description{
 Retrieve data for a given site.

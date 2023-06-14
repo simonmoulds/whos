@@ -13,7 +13,11 @@ RoxygenNote: 7.1.2
 Depends:
     R (>= 4.1)
 Imports:
+    checkmate,
     httr,
+    mapview,
+    methods,
+    sf,
     stats,
     tibble,
     XML
