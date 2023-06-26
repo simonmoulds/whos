@@ -2,6 +2,7 @@
 #'
 #' @aliases NULL whos-package
 #' @import checkmate
+#' @import ggplot2
 #' @import httr
 #' @import mapview
 #' @import methods

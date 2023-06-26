@@ -14,6 +14,7 @@ Depends:
     R (>= 4.1)
 Imports:
     checkmate,
+    ggplot2,
     httr,
     mapview,
     methods,

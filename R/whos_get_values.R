@@ -60,13 +60,13 @@ whos_get_values <- function(server, site_code, variable_code, site_info = NULL, 
   n_variables <- length(variable_code)
   values_list <- vector(mode = "list", length = n_variables)
   for (i in 1:n_variables) {
-    variable_code <- variable_code[i]
+    var <- variable_code[i]
     metadata <- NULL
     if (!is.null(site_info)) {
-      metadata <- site_info[site_info$VariableCode %in% variable_code, ]
+      metadata <- site_info[site_info$VariableCode %in% var, ]
       metadata <- tibble(data.frame(metadata))
     }
-    values <- GetValues(server, site_code, variable_code)
+    values <- GetValues(server, site_code, var)
     values <- new_tibble(
       values,
       metadata = as.list(metadata),
@@ -77,17 +77,16 @@ whos_get_values <- function(server, site_code, variable_code, site_info = NULL, 
   if (length(values_list) == 1) {
     return(values_list[[1]])
   } else {
-    nms <- sapply(values_list, FUN = function(x) attr(x, "metadata")$VariableCode)
-    names(values_list) <- nms
-    class(values_list) <- c("whos_values_list", "list")
+    names(values_list) <- variable_code
+    ## class(values_list) <- c("whos_values_list", "list")
     return(values_list)
   }
 }
 
-#' @export
-`[.whos_values_list` <- function(x, i, ...) {
-  structure(NextMethod("["), class = class(x))
-}
+## # @ export
+## `[.whos_values_list` <- function(x, i, ...) {
+##   structure(NextMethod("["), class = class(x))
+## }
 
 #' Get metadata for object returned by `whos_get_values`
 #'
@@ -105,11 +104,34 @@ metadata.whos_values <- function(x, ...) {
   return(attr(x, "metadata"))
 }
 
+## # @ export
+## metadata.whos_values_list <- function(x, ...) {
+##   metadata_list <- list()
+##   for (i in 1:length(x)) {
+##     metadata_list[[i]] <- as_tibble(attr(x[[i]], "metadata"))
+##   }
+##   return(do.call("rbind", metadata_list))
+## }
+
+#' Plot values
+#'
+#' @param x Tibble.
+#' @param ... Additional arguments. None implemented.
+#'
+#' @return ggplot
 #' @export
-metadata.whos_values_list <- function(x, ...) {
-  metadata_list <- list()
-  for (i in 1:length(x)) {
-    metadata_list[[i]] <- as_tibble(attr(x[[i]], "metadata"))
+plot.whos_values <- function(x, ...) {
+  varname <- metadata(x)$VariableName
+  units <- metadata(x)$UnitAbbreviation
+  if (is.na(units) | nchar(units) == 0) {
+    units <- ""
   }
-  return(do.call("rbind", metadata_list))
+  y_label <- sprintf("%s [%s]", varname, units)
+  title <- metadata(x)$citation
+  p <- ggplot(data = x, aes_string(x = "time", y = "DataValue")) +
+    geom_line() +
+    ylab(y_label) +
+    xlab("Time") +
+    ggtitle(title)
+  p
 }

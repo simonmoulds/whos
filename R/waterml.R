@@ -499,8 +499,10 @@ GetSites <- function(server, west=NULL, south=NULL, east=NULL, north=NULL) {
         envelope <- MakeSOAPEnvelope(namespace, methodName)
       } else {
         methodName <- "GetSitesByBoxObject"
-        envelope <- MakeSOAPEnvelope(namespace, methodName,
-                      parameters=c(west=west, south=south, north=north, east=east,IncludeSeries="false"))
+        envelope <- MakeSOAPEnvelope(
+          namespace, methodName,
+          parameters=c(west=west, south=south, north=north, east=east, IncludeSeries="false")
+        )
       }
     }
     SOAPAction <- paste(namespace, methodName, sep="")
